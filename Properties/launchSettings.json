@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "QOIComarisonImprovement": {
-      "commandName": "Project",
-      "commandLineArgs": "gwen.bmp",
-      "workingDirectory": "D:\\Studia\\Masters S2\\Data Compression\\Project\\QOIComarisonImprovement\\bin\\Debug\\net6.0"
-    }
-  }
-}
