@@ -8,18 +8,29 @@ internal class Program
     private static void Main(string[] args)
     {
 
-        if (args.Length != 1)
+        if (args.Length < 1)
         {
-            Console.WriteLine("Provide 1 argument: path to bmp file.");
+            Console.WriteLine("Provide arguments: path(s) to images to test (standard formats like bmp, jpeg or png supported).");
             return;
         }
 
-        string path = args[0];
+        foreach(string path in args)
+        {
+            ProcessArgument(path);
+            Console.WriteLine("");
+        }
+
+        Console.WriteLine("Finished.");
+        Console.Read();
+    }
+
+    private static void ProcessArgument(string path)
+    {
         string fileName = Path.GetFileName(path);
 
         var (rawPixels, width, height) = ImageAlgorithm.LoadBmp(path);
 
-        Console.WriteLine($"File: {fileName}; Size: {rawPixels.Length,10} bytes; Dimensions: {width}x{height}");
+        Console.WriteLine($"File: {fileName, 35}; Size: {rawPixels.Length,10} bytes; Dimensions: {width}x{height}");
 
         // Default
         PerformMeasurement(new PNG(), rawPixels, width, height);
@@ -48,6 +59,6 @@ internal class Program
         var (compressTime, decompressTime, compressedData) = algorithm.MeasureTime(rawPixels, width, height, 3);
 
         double compressionRate = (double)compressedData.Length / (double)rawPixels.Length * 100;
-        Console.WriteLine($"{"[" + algorithm.Name + "]",15}: Compress: {Math.Round(compressTime.TotalMilliseconds, 2),7} ms; Decompress: {Math.Round(decompressTime.TotalMilliseconds),7} ms; Size after compression: {compressedData.Length,10} bytes; Compression rate: {Math.Round(compressionRate,2),5}%");
+        Console.WriteLine($"\t{"[" + algorithm.Name + "]",15}: Compress: {Math.Round(compressTime.TotalMilliseconds, 2),7} ms; Decompress: {Math.Round(decompressTime.TotalMilliseconds),7} ms; Size after compression: {compressedData.Length,10} bytes; Compression rate: {Math.Round(compressionRate,2),5}%");
     }
 }
