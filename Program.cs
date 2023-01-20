@@ -74,8 +74,8 @@ internal class Program
         double compressionRate = (double)rawPixels.Length/(double)compressedData.Length;
         using (TextWriter tw = new StreamWriter(testPath, true))
         {
-            tw.WriteLine($"{fileName,35}\t{rawPixels.Length,10}\t{width}x{height}\t{algorithm.Name,15}\t{Math.Round(compressTime.TotalMilliseconds, 2),7}\t{Math.Round(decompressTime.TotalMilliseconds),7}\t{compressedData.Length,10}\t{Math.Round(compressionRate, 5),8}");
+            tw.WriteLine($"{fileName,35}\t{rawPixels.Length,10}\t{width}x{height}\t{algorithm.Name,15}\t{Math.Round(compressTime.TotalMilliseconds, 3),7}\t{Math.Round(decompressTime.TotalMilliseconds,3),7}\t{compressedData.Length,10}\t{Math.Round(compressionRate, 3),7}");
         }
-        Console.WriteLine($"\t{"[" + algorithm.Name + "]",15}: Compress: {Math.Round(compressTime.TotalMilliseconds, 2),7} ms; Decompress: {Math.Round(decompressTime.TotalMilliseconds),7} ms; Size after compression: {compressedData.Length,10} bytes; Compression rate: {Math.Round(compressionRate,5),8}");
+        Console.WriteLine($"\t{"[" + algorithm.Name + "]",15}: Compress: {Math.Round(compressTime.TotalMilliseconds, 3),7} ms; Decompress: {Math.Round(decompressTime.TotalMilliseconds,3),7} ms; Size after compression: {compressedData.Length,10} bytes; Compression rate: {Math.Round(compressionRate,3),7}");
     }
 }
