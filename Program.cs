@@ -27,64 +27,55 @@ internal class Program
     private static void ProcessArgument(string path)
     {
         string fileName = Path.GetFileName(path);
-        /*string testPath = Path.GetDirectoryName(path)+"/test.txt";*/
+        
+        string testPath = Path.GetDirectoryName(path)+"/test.txt";
 
         var (rawPixels, width, height) = ImageAlgorithm.LoadBmp(path);
 
-        /*if (!File.Exists(testPath))
+        if (!File.Exists(testPath))
         {
             File.Create(testPath).Dispose();
-
             using (TextWriter tw = new StreamWriter(testPath))
             {
-                tw.WriteLine($"{fileName,35}\t {rawPixels.Length,10}\t {width}x{height}");
+                tw.WriteLine("File\t Size(bytes)\t Dimensions\t Type\t CompressionTime(ms)\t DecompressionTime(ms)\t SizeAfterCompression(bytes)\t CompressionRate\n");
             }
-
         }
-        else if (File.Exists(testPath))
-        {
-            using (TextWriter tw = new StreamWriter(testPath))
-            {
-                tw.WriteLine($"{fileName,35}\t {rawPixels.Length,10}\t {width}x{height}");
-            }
-        }*/
+
+
 
         Console.WriteLine($"File: {fileName, 35}; Size: {rawPixels.Length,10} bytes; Dimensions: {width}x{height}");
 
         // Default
-        PerformMeasurement(new PNG(), rawPixels, width, height);
+        PerformMeasurement(new PNG(), fileName,testPath, rawPixels, width, height);
 
         // Lossy compression especially good on real life images
-        PerformMeasurement(new JPEG(), rawPixels, width, height);
+        PerformMeasurement(new JPEG(), fileName, testPath, rawPixels, width, height);
 
         // Potentially better than png and jpg with much worse compression time
-        PerformMeasurement(new Webp(), rawPixels, width, height);
+        PerformMeasurement(new Webp(), fileName, testPath, rawPixels, width, height);
 
         // Default qoi
-        PerformMeasurement(new QOI(), rawPixels, width, height);
+        PerformMeasurement(new QOI(), fileName, testPath, rawPixels, width, height);
 
         // Additional LZ4 compression - generally worse than others in LZ family, but much faster
-        PerformMeasurement(new QOILZ4(), rawPixels, width, height);
+        PerformMeasurement(new QOILZ4(), fileName, testPath, rawPixels, width, height);
 
         // Additional dictionary (+ entropy) compression - LZ77 + Huffman
-        PerformMeasurement(new QOIDeflate(), rawPixels, width, height);
+        PerformMeasurement(new QOIDeflate(), fileName, testPath, rawPixels, width, height);
 
         // Additional LZMA compression - better and slower LZ77-like used in 7-zip
-        PerformMeasurement(new QOILZMA(), rawPixels, width, height);
+        PerformMeasurement(new QOILZMA(), fileName, testPath, rawPixels, width, height);
     }
 
-    private static void PerformMeasurement(ImageAlgorithm algorithm, byte[] rawPixels, int width, int height)
+    private static void PerformMeasurement(ImageAlgorithm algorithm, string fileName, string testPath,  byte[] rawPixels, int width, int height)
     {
         var (compressTime, decompressTime, compressedData) = algorithm.MeasureTime(rawPixels, width, height, 3);
-        /*var delimiter = "\t";
-        
-        using (var writer = new StreamWriter(filePath))
-        {
-            var line = string.Join(delimiter, itemContent);
-            writer.WriteLine(line);
-        }*/
 
         double compressionRate = (double)rawPixels.Length/(double)compressedData.Length;
+        using (TextWriter tw = new StreamWriter(testPath, true))
+        {
+            tw.WriteLine($"{fileName,35}\t{rawPixels.Length,10}\t{width}x{height}\t{algorithm.Name,15}\t{Math.Round(compressTime.TotalMilliseconds, 2),7}\t{Math.Round(decompressTime.TotalMilliseconds),7}\t{compressedData.Length,10}\t{Math.Round(compressionRate, 5),8}");
+        }
         Console.WriteLine($"\t{"[" + algorithm.Name + "]",15}: Compress: {Math.Round(compressTime.TotalMilliseconds, 2),7} ms; Decompress: {Math.Round(decompressTime.TotalMilliseconds),7} ms; Size after compression: {compressedData.Length,10} bytes; Compression rate: {Math.Round(compressionRate,5),8}");
     }
 }
